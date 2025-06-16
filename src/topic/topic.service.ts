@@ -10,7 +10,7 @@ import { FindOneDto } from 'src/database/dto/database.dto';
 import { CreateTopicDto } from './dto/topic.dto';
 import { TopicEntity } from './entities/topic.entity';
 import { TopicConstant } from './enum/topic.enum';
-import { ISchemaTopic } from './interface/topic.interface';
+import { ISchemaTopicSave } from './interface/topic.interface';
 
 @Injectable()
 export class TopicService {
@@ -19,7 +19,7 @@ export class TopicService {
 		private readonly topicRepository: TreeRepository<TopicEntity>,
 	) {}
 
-	async createTopic(data: CreateTopicDto): Promise<ISchemaTopic> {
+	async createTopic(data: CreateTopicDto): Promise<TopicEntity> {
 		const { parentId } = data;
 
 		if (parentId) {
@@ -29,7 +29,9 @@ export class TopicService {
 		}
 	}
 
-	private async handleCreateParentTopic(data: CreateTopicDto) {
+	private async handleCreateParentTopic(
+		data: CreateTopicDto,
+	): Promise<TopicEntity> {
 		const { code } = data;
 		if (!code) {
 			throw new BadRequestException(
@@ -52,7 +54,9 @@ export class TopicService {
 		});
 	}
 
-	private async handleCreateChildTopic(data: CreateTopicDto) {
+	private async handleCreateChildTopic(
+		data: CreateTopicDto,
+	): Promise<TopicEntity> {
 		const { parentId, code } = data;
 
 		// validate
@@ -65,6 +69,10 @@ export class TopicService {
 			throwErrorIfExist: true,
 		});
 
+		if (parentId) {
+			throw new BadRequestException('');
+		}
+
 		// business
 		const { code: newCode, codeSort } =
 			await this.genCodeChildren(parentId);
@@ -76,12 +84,15 @@ export class TopicService {
 		});
 	}
 
-	private async saveTopicToDatabase(data: ISchemaTopic) {
+	private async saveTopicToDatabase(data: ISchemaTopicSave) {
 		const newTopic = this.topicRepository.create(data);
-		return this.topicRepository.save(newTopic);
+
+		const savedTopics = await this.topicRepository.save(newTopic);
+
+		return savedTopics[0];
 	}
 
-	private async findOne({
+	async findOne({
 		where,
 		order,
 		throwErrorIfExist,
@@ -111,6 +122,24 @@ export class TopicService {
 			where: { field: 'id', value: topicParentId },
 		});
 
+		const maxCode = await this.getMaxCode(topicParentId);
+
+		const nextCode = maxCode + 1;
+		const nextCodeSort = nextCode
+			.toString()
+			.padStart(TopicConstant.LENGTH_PAD, '0');
+
+		return {
+			code: `${topicParent.code}${nextCode}`,
+			codeSort: `${topicParent.code}_${nextCodeSort}`,
+		};
+	}
+
+	private async getMaxCode(topicParentId: string) {
+		const topicParent = await this.findOne({
+			where: { field: 'id', value: topicParentId },
+		});
+
 		const lastChildrenTopic = await this.findOne({
 			where: { field: 'parentId', value: topicParentId },
 			order: {
@@ -119,24 +148,11 @@ export class TopicService {
 			},
 		});
 
-		let maxCode: number;
-		const sliceStartIndex = topicParent.code.length + '_'.length;
-
 		if (!lastChildrenTopic) {
-			maxCode = 0;
+			return 0;
 		} else {
-			maxCode = Number(lastChildrenTopic.codeSort.slice(sliceStartIndex));
+			const sliceStartIndex = topicParent.code.length;
+			return Number(lastChildrenTopic.code.slice(sliceStartIndex));
 		}
-
-		const codeResult = maxCode + 1;
-
-		const codeResultString = codeResult
-			.toString()
-			.padStart(TopicConstant.LENGTH_PAD, '0');
-
-		return {
-			code: `${topicParent.code}_${codeResult}`,
-			codeSort: `${topicParent.code}_${codeResultString}`,
-		};
 	}
 }

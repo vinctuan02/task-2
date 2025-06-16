@@ -11,3 +11,7 @@ export enum OrderStatus {
 	OVERDUE = 'overdue',
 	CANCEL = 'cancel',
 }
+
+export enum OrderConstant {
+	LENGTH_PAD = 10,
+}

@@ -6,16 +6,16 @@ import { OrderStatus } from '../enum/order.enum';
 @Entity({ name: 'orders' })
 export class OrderEntity extends BaseEntity {
 	@Column({ type: 'text', nullable: true })
-	content: string;
+	content: string | null;
 
 	@Column({ unique: true })
 	code: string;
 
-	@Column({ name: 'code_sort', nullable: true })
+	@Column({ name: 'code_sort' })
 	codeSort: string;
 
 	@Column({ nullable: true })
-	note: string;
+	note: string | null;
 
 	@Column({ type: 'datetime' })
 	deadline: Date;
@@ -26,7 +26,8 @@ export class OrderEntity extends BaseEntity {
 	@Column({
 		type: 'enum',
 		enum: OrderStatus,
-		default: OrderStatus.NEW,
+		// default: OrderStatus.NEW,
+		nullable: false,
 	})
 	status: OrderStatus;
 
