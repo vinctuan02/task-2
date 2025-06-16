@@ -1,4 +1,4 @@
-import { BaseEntity } from 'src/database/dto/db.dto';
+import { BaseEntity } from 'src/database/dto/database.dto';
 import { OrderEntity } from 'src/order/entities/order.entity';
 import {
 	Column,
@@ -19,6 +19,9 @@ export class TopicEntity extends BaseEntity {
 
 	@TreeChildren({ cascade: true })
 	children: TopicEntity[];
+
+	@Column({ name: 'parent_id', nullable: true })
+	parentId: string;
 
 	@Column({ unique: true })
 	code: string;

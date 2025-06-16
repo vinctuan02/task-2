@@ -1,4 +1,4 @@
-import { BaseEntity } from 'src/database/dto/db.dto';
+import { BaseEntity } from 'src/database/dto/database.dto';
 import { TopicEntity } from 'src/topic/entities/topic.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { OrderStatus } from '../enum/order.enum';
