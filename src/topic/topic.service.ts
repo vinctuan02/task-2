@@ -6,6 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { TreeRepository } from 'typeorm';
 
+import { FindOneDto } from 'src/database/dto/database.dto';
 import { CreateTopicDto } from './dto/topic.dto';
 import { TopicEntity } from './entities/topic.entity';
 import { TopicConstant } from './enum/topic.enum';
@@ -37,8 +38,7 @@ export class TopicService {
 		}
 
 		const topic = await this.findOne({
-			fieldName: 'code',
-			value: code,
+			where: { field: 'code', value: code },
 		});
 
 		if (topic) {
@@ -61,9 +61,8 @@ export class TopicService {
 		}
 
 		await this.findOne({
-			fieldName: 'id',
-			value: parentId,
-			throwError: true,
+			where: { field: 'id', value: parentId },
+			throwErrorIfExist: true,
 		});
 
 		// business
@@ -83,29 +82,21 @@ export class TopicService {
 	}
 
 	private async findOne({
-		fieldName,
-		value,
-		orderBy,
+		where,
 		order,
-		throwError,
-	}: {
-		fieldName: string;
-		value: any;
-		orderBy?: string;
-		order?: 'ASC' | 'DESC';
-		throwError?: boolean;
-	}): Promise<TopicEntity> {
+		throwErrorIfExist,
+	}: FindOneDto): Promise<TopicEntity> {
 		const options: any = {
-			where: { [fieldName]: value },
+			where: { [where.field]: where.value },
 		};
 
-		if (orderBy && order) {
-			options.order = { [orderBy]: order };
+		if (order) {
+			options.order = { [order.by]: order.value };
 		}
 
 		const topic = await this.topicRepository.findOne(options);
 
-		if (!topic && throwError) {
+		if (throwErrorIfExist && !topic) {
 			throw new NotFoundException('Topic not found');
 		}
 
@@ -117,15 +108,15 @@ export class TopicService {
 		codeSort: string;
 	}> {
 		const topicParent = await this.findOne({
-			fieldName: 'id',
-			value: topicParentId,
+			where: { field: 'id', value: topicParentId },
 		});
 
 		const lastChildrenTopic = await this.findOne({
-			fieldName: 'parentId',
-			value: topicParentId,
-			orderBy: 'codeSort',
-			order: 'DESC',
+			where: { field: 'parentId', value: topicParentId },
+			order: {
+				by: 'codeSort',
+				value: 'DESC',
+			},
 		});
 
 		let maxCode: number;

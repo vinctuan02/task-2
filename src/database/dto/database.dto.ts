@@ -14,3 +14,17 @@ export class BaseEntity {
 	@UpdateDateColumn({ name: 'updated_at' })
 	updatedAt: Date;
 }
+
+export class FindOneDto {
+	where: {
+		field: string;
+		value: any;
+	};
+
+	order?: {
+		by: string;
+		value: 'ASC' | 'DESC';
+	};
+
+	throwErrorIfExist?: boolean = false;
+}
