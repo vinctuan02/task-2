@@ -55,10 +55,18 @@ export class TopicService {
 	private async handleCreateChildTopic(data: CreateTopicDto) {
 		const { parentId, code } = data;
 
+		// validate
 		if (code) {
 			throw new BadRequestException('Child theme code is by gene system');
 		}
 
+		await this.findOne({
+			fieldName: 'id',
+			value: parentId,
+			throwError: true,
+		});
+
+		// business
 		const { code: newCode, codeSort } =
 			await this.genCodeChildren(parentId);
 
@@ -111,7 +119,6 @@ export class TopicService {
 		const topicParent = await this.findOne({
 			fieldName: 'id',
 			value: topicParentId,
-			throwError: true,
 		});
 
 		const lastChildrenTopic = await this.findOne({
