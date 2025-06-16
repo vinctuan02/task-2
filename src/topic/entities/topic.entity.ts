@@ -20,17 +20,17 @@ export class TopicEntity extends BaseEntity {
 	@TreeChildren({ cascade: true })
 	children: TopicEntity[];
 
-	@Column({ name: 'parent_id', nullable: true })
-	parentId: string;
+	@Column({ name: 'parent_id', nullable: true, type: 'varchar' })
+	parentId?: string | null;
 
 	@Column({ unique: true })
 	code: string;
 
 	@Column({ type: 'text', nullable: true })
-	description: string;
+	description?: string | null;
 
-	@Column({ nullable: true })
-	note: string;
+	@Column({ nullable: true, type: 'varchar' })
+	note?: string | null;
 
 	@Column({ name: 'code_sort' })
 	codeSort: string;

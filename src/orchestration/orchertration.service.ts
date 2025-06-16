@@ -8,14 +8,13 @@ export class OrchertrationService {
 	constructor(
 		private readonly orderService: OrderService,
 		private readonly topicService: TopicService,
-	) {}
+	) { }
 
 	async createOrder(data: CreateOrderDto) {
 		const { topicId } = data;
 
 		const topic = await this.topicService.findOne({
-			where: { field: 'id', value: topicId },
-			throwErrorIfExist: true,
+			where: { field: 'id', value: topicId }
 		});
 
 		if (!topic.parentId) {
@@ -26,6 +25,7 @@ export class OrchertrationService {
 			topic,
 			...data,
 		});
+
 		return newOrder;
 	}
 }

@@ -12,15 +12,13 @@ export class OrderService {
 	constructor(
 		@InjectRepository(OrderEntity)
 		private readonly orderRepository: Repository<OrderEntity>,
-	) {}
+	) { }
 
 	async createOrder(data: ICreateOrder) {
 		const { topic, status, ...otherData } = data;
 		const { code, codeSort } = await this.genCodeOrder(topic);
 
-		console.log(otherData);
-
-		await this.saveOrderToDatabase({
+		return await this.saveOrderToDatabase({
 			code,
 			codeSort,
 			userCreatorId: 'hi',
@@ -31,20 +29,14 @@ export class OrderService {
 	}
 
 	async saveOrderToDatabase(data: ISchemaOrderSave) {
-		console.log(data);
 		const newOrder = this.orderRepository.create(data);
-
-		console.log(newOrder);
-
-		const a = await this.orderRepository.save(newOrder);
-		console.log(a);
+		return await this.orderRepository.save(newOrder);
 	}
 
 	private async genCodeOrder(topic: ISchemaTopic) {
 		const order = await this.orderRepository.findOne({
 			where: { topicId: topic.id },
-			order: { codeSort: 'DESC' },
-			relations: ['topic'],
+			order: { codeSort: 'DESC' }
 		});
 
 		const sliceStartIndex = topic.code.length + '_'.length;

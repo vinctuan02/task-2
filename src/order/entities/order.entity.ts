@@ -14,7 +14,7 @@ export class OrderEntity extends BaseEntity {
 	@Column({ name: 'code_sort' })
 	codeSort: string;
 
-	@Column({ nullable: true })
+	@Column({ nullable: true, type: 'varchar' })
 	note: string | null;
 
 	@Column({ type: 'datetime' })

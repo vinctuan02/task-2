@@ -18,13 +18,11 @@ export class BaseEntity {
 export class FindOneDto {
 	where: {
 		field: string;
-		value: any;
+		value: string | null | undefined;
 	};
 
 	order?: {
 		by: string;
 		value: 'ASC' | 'DESC';
 	};
-
-	throwErrorIfExist?: boolean = false;
 }
