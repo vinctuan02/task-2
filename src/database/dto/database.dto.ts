@@ -1,18 +1,25 @@
+import { nanoid } from 'nanoid';
 import {
+	BeforeInsert,
 	CreateDateColumn,
-	PrimaryGeneratedColumn,
+	PrimaryColumn,
 	UpdateDateColumn,
 } from 'typeorm';
 
 export class BaseEntity {
-	@PrimaryGeneratedColumn('uuid')
+	@PrimaryColumn({ type: 'varchar', length: 21 })
 	id: string;
 
-	@CreateDateColumn({ name: 'created_at' })
+	@CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
 	createdAt: Date;
 
-	@UpdateDateColumn({ name: 'updated_at' })
+	@UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
 	updatedAt: Date;
+
+	@BeforeInsert()
+	generateId() {
+		this.id = nanoid(10);
+	}
 }
 
 export class FindOneDto {

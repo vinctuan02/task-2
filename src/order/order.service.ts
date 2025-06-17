@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ICreateOrder } from 'src/orchestration/interface/orchertration.interface';
+import { ICreateOrder } from 'src/orchestration/interface/orchestration.interface';
 import { ISchemaTopic } from 'src/topic/interface/topic.interface';
 import { Repository } from 'typeorm';
 import { OrderEntity } from './entities/order.entity';
@@ -12,7 +12,7 @@ export class OrderService {
 	constructor(
 		@InjectRepository(OrderEntity)
 		private readonly orderRepository: Repository<OrderEntity>,
-	) { }
+	) {}
 
 	async createOrder(data: ICreateOrder) {
 		const { topic, status, ...otherData } = data;
@@ -36,7 +36,7 @@ export class OrderService {
 	private async genCodeOrder(topic: ISchemaTopic) {
 		const order = await this.orderRepository.findOne({
 			where: { topicId: topic.id },
-			order: { codeSort: 'DESC' }
+			order: { codeSort: 'DESC' },
 		});
 
 		const sliceStartIndex = topic.code.length + '_'.length;

@@ -1,9 +1,13 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
 import { ConfigCustomModule } from './config/config.module';
 import { DatabaseModule } from './database/database.module';
-import { OrchertrationModule } from './orchestration/orchertration.module';
+import { JwtAuthGuard } from './jwt/jwt-auth.guard';
+import { JwtModule } from './jwt/jwt.module';
+import { OrchestrationModule } from './orchestration/orchestration.module';
 import { OrderModule } from './order/order.module';
 import { TopicModule } from './topic/topic.module';
 
@@ -11,11 +15,19 @@ import { TopicModule } from './topic/topic.module';
 	imports: [
 		ConfigCustomModule,
 		DatabaseModule,
-		OrchertrationModule,
+		OrchestrationModule,
 		TopicModule,
 		OrderModule,
+		AuthModule,
+		JwtModule,
 	],
 	controllers: [AppController],
-	providers: [AppService],
+	providers: [
+		AppService,
+		{
+			provide: APP_GUARD,
+			useClass: JwtAuthGuard,
+		},
+	],
 })
 export class AppModule {}

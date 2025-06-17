@@ -1,6 +1,8 @@
 import { BaseEntity } from 'src/database/dto/database.dto';
+import { OrderProductEntity } from 'src/order-product/entities/order-product.entity';
+import { PriorityEntity } from 'src/priorities/entities/priorities.entity';
 import { TopicEntity } from 'src/topic/entities/topic.entity';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { OrderStatus } from '../enum/order.enum';
 
 @Entity({ name: 'orders' })
@@ -17,16 +19,19 @@ export class OrderEntity extends BaseEntity {
 	@Column({ nullable: true, type: 'varchar' })
 	note: string | null;
 
-	@Column({ type: 'datetime' })
+	@Column({ type: 'timestamptz' })
 	deadline: Date;
 
 	@Column({ name: 'user_creator_id' })
 	userCreatorId: string;
 
+	@Column({ name: 'priority_id' })
+	priorityId: string;
+
 	@Column({
 		type: 'enum',
 		enum: OrderStatus,
-		// default: OrderStatus.NEW,
+		default: OrderStatus.NEW,
 		nullable: false,
 	})
 	status: OrderStatus;
@@ -37,4 +42,11 @@ export class OrderEntity extends BaseEntity {
 	@ManyToOne(() => TopicEntity, (topic) => topic.orders, {})
 	@JoinColumn({ name: 'topic_id' })
 	topic: TopicEntity;
+
+	@ManyToOne(() => PriorityEntity, (priorities) => priorities.orders, {})
+	@JoinColumn({ name: 'priority_id' })
+	priority: PriorityEntity;
+
+	@OneToMany(() => OrderProductEntity, (orderProduct) => orderProduct.order)
+	orderProducts: OrderProductEntity[];
 }
